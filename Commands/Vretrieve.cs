@@ -30,7 +30,7 @@ namespace GarageLite
 
             if (args.Length == 0)
             {
-                ChatManager.serverSendMessage($"Usage /vretrieve [NAME]", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VretrieveUsage"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace GarageLite
                 
                 if (!MQSPlugin.Instance.VehicleServices.HasVehicles(player.Id, vehicle))
                 {
-                    ChatManager.serverSendMessage($"[!] Vehicle {vehicle} not found.", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                    ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleNotFound", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                 }
 
                 if (MQSPlugin.Instance.VehicleServices.HasVehicles(player.Id, vehicle))
@@ -51,7 +51,7 @@ namespace GarageLite
 
                         var car = Convert.ToUInt16(id);
 
-                        ChatManager.serverSendMessage($"[+] Vehicle {vehicle} retrieved.", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                        ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleRetrieved", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
 
                         Vector3 point = player.Player.transform.position + player.Player.transform.forward * 6 + player.Player.transform.up * 6;
 

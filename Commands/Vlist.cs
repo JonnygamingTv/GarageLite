@@ -37,8 +37,7 @@ namespace GarageLite
                 names += $" {vehicle.Name} |";
             }
 
-            ChatManager.serverSendMessage($"[+] Vehicles: {names} ", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
-
+            ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleList", names), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
         }
     }
 }

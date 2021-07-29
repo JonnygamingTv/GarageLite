@@ -35,7 +35,7 @@ namespace GarageLite
 
             if (args.Length == 0 || args.Length > 1)
             {
-                ChatManager.serverSendMessage($"[?] Usage: /gadd [NAME]", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddUsage"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
 
             }
 
@@ -47,7 +47,7 @@ namespace GarageLite
                 {
                     if (args[0].Equals(car.Name))
                     {
-                        ChatManager.serverSendMessage("[!] Please choose another car name!", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                        ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddAnotherCarName"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                         return;
                     }
                 }
@@ -57,17 +57,21 @@ namespace GarageLite
                 {
                     if (player.CSteamID == vehicle.lockedOwner)
                     {
-                        MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
+                        if (vehicle.health != 0 && !vehicle.isUnderwater)
+                        {
+                            MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
                             vehicle.health, vehicle.batteryCharge, vehicle.fuel);
 
-                        VehicleManager.askVehicleDestroy(vehicle);
+                            VehicleManager.askVehicleDestroy(vehicle);
 
-                        ChatManager.serverSendMessage($"[+] Vehicle {args[0]} [{vehicle.id}] saved", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                            ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+
+                        }
                     }
 
                     else if (player.CSteamID != vehicle.lockedOwner)
                     {
-                        ChatManager.serverSendMessage("[!] Vehicle must be locked to save it in the GarageLite!", Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                        ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddMustBeLocked"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                     }
                 }
                 
