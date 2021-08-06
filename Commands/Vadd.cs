@@ -57,15 +57,32 @@ namespace GarageLite
                 {
                     if (player.CSteamID == vehicle.lockedOwner)
                     {
-                        if (vehicle.health != 0 && !vehicle.isUnderwater)
+                        if (MQSPlugin.Instance.Configuration.Instance.AllowCarsSavingUnderwater)
+                        { 
+                            if (vehicle.health != 0)
+                            {
+                                MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
+                                vehicle.health, vehicle.batteryCharge, vehicle.fuel);
+
+                                VehicleManager.askVehicleDestroy(vehicle);
+
+                                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+
+                            }
+                        }
+
+                        else
                         {
-                            MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
-                            vehicle.health, vehicle.batteryCharge, vehicle.fuel);
+                            if (vehicle.health != 0 && !vehicle.isUnderwater)
+                            {
+                                MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
+                                vehicle.health, vehicle.batteryCharge, vehicle.fuel);
 
-                            VehicleManager.askVehicleDestroy(vehicle);
+                                VehicleManager.askVehicleDestroy(vehicle);
 
-                            ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
 
+                            }
                         }
                     }
 
