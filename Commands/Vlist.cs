@@ -11,13 +11,12 @@ namespace GarageLite
 
     public class Vlist : IRocketCommand
     {
-        string icon = "https://i.imgur.com/4wLZNsz.png";
 
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
         public string Name => "glist";
         public string Help => "";
         public string Syntax => throw new NotImplementedException();
-        public List<string> Aliases => new List<string> { "garagelist", "vlist" };
+        public List<string> Aliases => new List<string> { "garagelist", "vlist", "glist", "vehiclelist" };
         public List<string> Permissions => new List<string> { "garagelite.list" };
 
         public List<VehicleInfo> GetVehicles(string id)
@@ -29,7 +28,7 @@ namespace GarageLite
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
 
-            var vehicles = GetVehicles(caller.Id);
+            List<VehicleInfo> vehicles = GetVehicles(caller.Id);
             string names = "|";
 
             foreach (var vehicle in vehicles)
@@ -37,7 +36,7 @@ namespace GarageLite
                 names += $" {vehicle.Name} |";
             }
 
-            ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleList", names), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+            ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleList", names,vehicles.Count), Color.white, null, player.SteamPlayer(), EChatMode.SAY, MQSPlugin.Instance.Configuration.Instance.icon, true);
         }
     }
 }

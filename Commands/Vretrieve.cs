@@ -11,13 +11,11 @@ namespace GarageLite
 
     public class Vretrieve : IRocketCommand
     {
-        string icon = "https://i.imgur.com/4wLZNsz.png";
-
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
         public string Name => "gretrieve";
         public string Help => "";
         public string Syntax => throw new NotImplementedException();
-        public List<string> Aliases => new List<string> { "garageretrieve", "vretrieve" };
+        public List<string> Aliases => new List<string> { "garageretrieve", "vretrieve", "gretrieve", "vehicleretrieve" };
         public List<string> Permissions => new List<string> { "garagelite.retrieve" };
         public VehicleInfo RetrieveVehicle(string name, string ownerId)
         {
@@ -30,43 +28,54 @@ namespace GarageLite
 
             if (args.Length == 0)
             {
-                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VretrieveUsage"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VretrieveUsage"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, MQSPlugin.Instance.Configuration.Instance.icon, true);
                 return;
             }
 
             if (args.Length == 1)
             {
-                var vehicle = args[0];
+                string vehicle = args[0];
                 
                 if (!MQSPlugin.Instance.VehicleServices.HasVehicles(player.Id, vehicle))
                 {
-                    ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleNotFound", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                    ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleNotFound", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, MQSPlugin.Instance.Configuration.Instance.icon, true);
                 }
 
                 if (MQSPlugin.Instance.VehicleServices.HasVehicles(player.Id, vehicle))
                 {
                     if (vehicle != null)
                     {
-                        string id = RetrieveVehicle(vehicle, player.Id).VehicleId.ToString();
-
-                        var car = Convert.ToUInt16(id);
-
-                        ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleRetrieved", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
-
                         Vector3 point = player.Player.transform.position + player.Player.transform.forward * 6 + player.Player.transform.up * 6;
 
-                        InteractableVehicle MyCar = 
-                        VehicleManager.spawnLockedVehicleForPlayerV2(car, point, player.Player.transform.rotation, player.Player);
-
-                        string health = RetrieveVehicle(vehicle, player.Id).VehicleHealth.ToString();
-                        string battery = RetrieveVehicle(vehicle, player.Id).VehicleBattery.ToString();
-                        string fuel = RetrieveVehicle(vehicle, player.Id).VehicleFuel.ToString();
-
-                        VehicleManager.sendVehicleHealth(MyCar, Convert.ToUInt16(health));
-                        VehicleManager.sendVehicleBatteryCharge(MyCar, Convert.ToUInt16(battery));
-                        VehicleManager.sendVehicleFuel(MyCar, Convert.ToUInt16(fuel));
+                        VehicleInfo Vinfo = RetrieveVehicle(vehicle, player.Id);
+                        ushort id = Vinfo.VehicleId;
+                        InteractableVehicle MyVehicle = VehicleManager.spawnLockedVehicleForPlayerV2(id, point, player.Player.transform.rotation, player.Player);//InteractableVehicle MyVehicle = new InteractableVehicle();
+                        MyVehicle.id = id;
+                        MyVehicle.transform.position = point;
+                        MyVehicle.health = Vinfo.VehicleHealth;
+                        MyVehicle.batteryCharge = Vinfo.VehicleBattery;
+                        MyVehicle.fuel = Vinfo.VehicleFuel;
+                        /*Items items = new Items(7);
+                        for (int i = 0; i < Vinfo.Items.Length; i++)
+                        {
+                            Item it = new Item(Vinfo.Items[i],true);
+                            items.tryAddItem(it);
+                        }
+                        MyVehicle.trunkItems = items;
+                        for(int i=0;i<Vinfo.Tires.Length;i++)
+                            MyVehicle.tires[i].isAlive = Vinfo.Tires[i];*/
+                        MyVehicle.trunkItems = Vinfo.Items;
+                        //VehicleManager.vehicles.Add(MyVehicle);
+                        MyVehicle.updateEngine();
+                        MyVehicle.updateVehicle();
+                        
+                        //VehicleManager.sendVehicleHealth(MyCar, health);
+                        //VehicleManager.sendVehicleBatteryCharge(MyCar, battery);
+                        //VehicleManager.sendVehicleFuel(MyCar, fuel);
+                        //MyCar.trunkItems = Vinfo.Items;
 
                         MQSPlugin.Instance.VehicleServices.QuitVehicle(vehicle, player.Id);
+                        ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleRetrieved", vehicle), Color.white, null, player.SteamPlayer(), EChatMode.SAY, MQSPlugin.Instance.Configuration.Instance.icon, true);
                     }
                 }
             }

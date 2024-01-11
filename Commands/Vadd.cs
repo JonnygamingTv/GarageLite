@@ -16,7 +16,7 @@ namespace GarageLite
         public string Name => "gadd";
         public string Help => "";
         public string Syntax => throw new NotImplementedException();
-        public List<string> Aliases => new List<string> { "garageadd", "vadd" };
+        public List<string> Aliases => new List<string> { "garageadd", "vadd", "gadd", "vehicleadd" };
         public List<string> Permissions => new List<string> { "garagelite.add" };
         public List<VehicleInfo> GetVehicles(string id)
         {
@@ -25,13 +25,21 @@ namespace GarageLite
 
         public void Execute(IRocketPlayer caller, string[] args)
         {
-            string icon = "https://i.imgur.com/4wLZNsz.png";
+            string icon = MQSPlugin.Instance.Configuration.Instance.icon;
 
             UnturnedPlayer player = (UnturnedPlayer)caller;
 
-            RaycastInfo thingLocated = TraceRay(player, 2048f, RayMasks.VEHICLE);
+            
 
-            InteractableVehicle vehicle = thingLocated.vehicle;
+            InteractableVehicle vehicle = null;
+            if (player.CurrentVehicle)
+            {
+                vehicle = player.CurrentVehicle;
+            }else
+            {
+                RaycastInfo thingLocated = TraceRay(player, 2048f, RayMasks.VEHICLE);
+                if (thingLocated != null) if (thingLocated.vehicle) vehicle = thingLocated.vehicle;
+            }
 
             if (args.Length == 0 || args.Length > 1)
             {
@@ -41,8 +49,12 @@ namespace GarageLite
 
             if (args.Length == 1)
             {
-                var vehiclename = GetVehicles(player.Id);
-
+                List<VehicleInfo> vehiclename = GetVehicles(player.Id);
+                if (vehiclename.Count > MQSPlugin.Instance.Configuration.Instance.MaxGarage)
+                {
+                    ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddFull"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
+                    return;
+                }
                 foreach (var car in vehiclename)
                 {
                     if (args[0].Equals(car.Name))
@@ -51,45 +63,39 @@ namespace GarageLite
                         return;
                     }
                 }
-
-                
                 if (vehicle != null) 
                 {
                     if (player.CSteamID == vehicle.lockedOwner)
                     {
-                        if (MQSPlugin.Instance.Configuration.Instance.AllowCarsSavingUnderwater)
-                        { 
-                            if (vehicle.health != 0)
-                            {
-                                MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
-                                vehicle.health, vehicle.batteryCharge, vehicle.fuel);
-
-                                VehicleManager.askVehicleDestroy(vehicle);
-
-                                ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
-
-                            }
-                        }
-
-                        else
                         {
-                            if (vehicle.health != 0 && !vehicle.isUnderwater)
+                            if (vehicle.health != 0 && (!vehicle.isUnderwater || MQSPlugin.Instance.Configuration.Instance.AllowCarsSavingUnderwater))
                             {
+                                /*int x = vehicle.tires.Length;
+                                bool[] Tires = new bool[x];
+                                for (byte i = 0; i < x; i++) Tires[i] = vehicle.tires[i].isAlive;
+                                x = vehicle.trunkItems.getItemCount();
+                                ushort[] trunkItems = new ushort[x];
+                                for (byte i = 0; i < x; i++) trunkItems[i] = vehicle.trunkItems.getItem(i).item.id;*/
+                                vehicle.forceRemoveAllPlayers();
+
                                 MQSPlugin.Instance.VehicleServices.RegisterVehicle(player.Id, args[0], vehicle.id,
-                                vehicle.health, vehicle.batteryCharge, vehicle.fuel);
+                                vehicle.health, vehicle.batteryCharge, vehicle.fuel, vehicle.trunkItems);
 
                                 VehicleManager.askVehicleDestroy(vehicle);
+                                UnityEngine.Object.DestroyImmediate(vehicle,true);
 
                                 ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VehicleSaved", args[0], vehicle.id), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
 
                             }
                         }
                     }
-
-                    else if (player.CSteamID != vehicle.lockedOwner)
+                    else
                     {
                         ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddMustBeLocked"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                     }
+                } else
+                {
+                    ChatManager.serverSendMessage(MQSPlugin.Instance.Translate("VaddNotFound"), Color.white, null, player.SteamPlayer(), EChatMode.SAY, icon, true);
                 }
                 
             }
