@@ -37,7 +37,7 @@ namespace GarageLite
             return true;
         }
 
-        public void RegisterVehicle(string playerId, string name, ushort id, ushort health, ushort battery, ushort fuel)
+        public void RegisterVehicle(string playerId, string name, ushort id, ushort health, ushort battery, ushort fuel, SDG.Unturned.Items items)
         {
             var vehicleinfo = new VehicleInfo
             {
@@ -47,6 +47,7 @@ namespace GarageLite
                 VehicleHealth = health,
                 VehicleBattery = battery,
                 VehicleFuel = fuel,
+                Items = items
             };
 
             database.AddVehicle(vehicleinfo);

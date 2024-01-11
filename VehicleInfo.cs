@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SDG.Unturned;
+using System;
 
 namespace GarageLite
 {
@@ -10,5 +11,6 @@ namespace GarageLite
         public ushort VehicleHealth { get; set; }
         public ushort VehicleBattery { get; set; }
         public ushort VehicleFuel { get; set; }
+        public Items Items { get; internal set; }
     }
 }
